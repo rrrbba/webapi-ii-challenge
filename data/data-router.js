@@ -8,7 +8,7 @@ router.post('/', (req, res) => {
     const newPost = req.body;
 
     if (!newPost.title || !newPost.contents){
-        res.status(400).json({ errorMessage: "Please provide title and contents for the post."})
+        return res.status(400).json({ errorMessage: "Please provide title and contents for the post."})
     }
     Posts.insert(newPost)
     .then(post => {
@@ -25,7 +25,7 @@ router.post("/:id/comments", (req, res) => {
     const comment = {...req.body, post_id: id};
 
     if (!comment.text) {
-       res.status(400).json({ errorMessage: "Please provide text for the comment." })
+        return res.status(400).json({ errorMessage: "Please provide text for the comment." })
     } 
 
     Posts.findById(id) //check to ensure the post with id given exists
@@ -61,7 +61,7 @@ router.get('/:id', (req, res) => {
     const id = req.params.id;
     
     if(!id) {
-        res.status(404).json({ message: "The post with the specified ID does not exist."})
+        return res.status(404).json({ message: "The post with the specified ID does not exist."})
     }
     Posts.findById(id)
     .then(posts => {
@@ -77,7 +77,7 @@ router.get('/:id/comments', (req, res) => {
     const id = req.params.id;
 
     if(!id) {
-        res.status(404).json({ message: "The post with the specified ID does not exist."})
+       return res.status(404).json({ message: "The post with the specified ID does not exist."})
     }
     Posts.findPostComments(id)
     .then(comments => {
@@ -95,7 +95,7 @@ router.delete('/:id', (req, res) => {
     Posts.remove(id)
     .then(post => {
         if(!post) {
-            res.status(404).json({ message: "The post with the specified ID does not exist."})
+            return res.status(404).json({ message: "The post with the specified ID does not exist."})
         } else {
             res.status(200).json(post);
         }
@@ -116,7 +116,7 @@ router.put('/:id', (req, res) => {
     Posts.update(id, changes)
     .then(post => {
         if(!post) {
-            res.status(404).json({ message: "The post with the specified ID does not exist."})
+            return res.status(404).json({ message: "The post with the specified ID does not exist."})
         } else {
             res.status(200).json(post);
         }
