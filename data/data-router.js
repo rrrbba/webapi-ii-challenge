@@ -35,13 +35,12 @@ router.post("/:id/comments", (req, res) => {
             .then(data => {
                 res.status(201).json(comment)
             })
-            .catch(err => {
-                res.status(500).json({ error: "There was an error while saving the comment to the database." })
-            })
         } else { //if the id doesn't exist return this
             res.status(404).json({ message: "The post with the specified ID does not exist." })
         }
-        
+    })
+    .catch(err => {
+        res.status(500).json({ error: "There was an error while saving the comment to the database." })
     })
 })
 
@@ -77,11 +76,18 @@ router.get('/:id/comments', (req, res) => {
     const id = req.params.id;
 
     if(!id) {
-       return res.status(404).json({ message: "The post with the specified ID does not exist."})
+       return res.status(400).json({ message: "You didn't provide an ID."})
     }
     Posts.findPostComments(id)
     .then(comments => {
-        res.json(comments);
+        Posts.findById(id)
+        .then(id => {
+            if(id){
+                res.status(200).json(comments)
+            } else{
+                res.status(404).json({ message: "You didn't give a valid ID.", id: id})
+            }
+        })
     })
     .catch(err => {
         res.status(500).json({ error: "The comments information could not be retrieved."})
@@ -110,15 +116,21 @@ router.put('/:id', (req, res) => {
     const id = req.params.id;
     const changes = req.body;
 
+    console.log(req.body);
+    console.log(changes);
+
     if(!changes.title || !changes.contents){
-        return res.status(400).json({ message: "The post with the specified ID does not exist."})
+        return res.status(400).json({ message: "Bad contents."})
     }
     Posts.update(id, changes)
     .then(post => {
         if(!post) {
-            return res.status(404).json({ message: "The post with the specified ID does not exist."})
+            return res.status(404).json({ message: "The post with the specified ID does not exist.", id: post})
         } else {
-            res.status(200).json(post);
+            Posts.findById(id)
+            .then(updPost => {
+                res.status(200).json(updPost)
+            })
         }
     })
     .catch(err => {
