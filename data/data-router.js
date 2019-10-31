@@ -78,8 +78,11 @@ router.get('/:id/comments', (req, res) => {
     if(!id) {
        return res.status(400).json({ message: "You didn't provide an ID."})
     }
-    Posts.findPostComments(id)
+    Posts.findPostComments(id) //flip the find comments with the post. Should just check if the post exists first 
     .then(comments => {
+        if(!commments.length){
+            return res.status(404).json({ message: "No comments!"})
+        }
         Posts.findById(id)
         .then(id => {
             if(id){
